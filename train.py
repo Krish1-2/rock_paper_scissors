@@ -9,24 +9,12 @@ import numpy as np
 import tensorflow as tf
 import pickle
 import matplotlib.pyplot as plt
+from keras.preprocessing.image import ImageDataGenerator
+
 
 
 train_images = []
 train_labels = []
-
-def augment_data(images, labels):
-    augmented_images = []
-    augmented_labels = []
-    for image, label in zip(images, labels):
-        augmented_images.append(image)
-        augmented_labels.append(label)
-        # Horizontal flip
-        augmented_images.append(np.fliplr(image))
-        augmented_labels.append(label)
-        # Vertical flip
-        augmented_images.append(np.flipud(image))
-        augmented_labels.append(label)
-    return np.array(augmented_images), np.array(augmented_labels)
 
 directory = 'dataset'
 label_encoder_path = "label_encoder.pkl"
@@ -58,9 +46,18 @@ train_labels = tf.keras.utils.to_categorical(train_labels,3)
 with open(label_encoder_path, 'wb') as file:
     pickle.dump(label_encoder, file)
 
-
 train_images, test_images, train_labels, test_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=42)
-train_images, train_labels = augment_data(train_images, train_labels)
+
+datagen = ImageDataGenerator(
+    # brightness_range=[0.7, 1.3], 
+    horizontal_flip=True,
+    vertical_flip=True,
+)
+
+# Generate augmented images and labels
+augmented_train_generator = datagen.flow(
+    train_images, train_labels, batch_size=32, shuffle=True
+)
 
 model = Sequential()
 model.add(Conv2D(32, (5, 5), activation='relu',strides=(1, 1), input_shape=(256,256, 1)))
@@ -68,12 +65,15 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Conv2D(64, (5, 5), activation='relu',strides=(1, 1)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
+
 model.add(Flatten())
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.5)) 
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5)) 
 model.add(Dense(3, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-hist=model.fit(train_images,train_labels, epochs=6,validation_data=(test_images, test_labels))
+hist=model.fit(augmented_train_generator, epochs=20,validation_data=(test_images, test_labels))
 model.save('game_model.h5')
 
 # Plot training and validation accuracy

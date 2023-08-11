@@ -16,7 +16,7 @@ print("After loading the model")
 with open("label_encoder.pkl", 'rb') as file:
     label_encoder = pickle.load(file)
 
-list1 = ['rock', 'paper', 'scissor']
+list1 = ['rock', 'paper', 'scissors']
 random_sel = random.choice(list1)
 predicted_class=''
 vedio = cv2.VideoCapture(0)
@@ -28,25 +28,8 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         ret, frame = vedio.read()
         x1, y1 = 25, 25  
         x2, y2 = 325, 325  
-
-        # while True:
-        #     ret, frame = vedio.read()
-        #     if not ret:
-        #         print('shit')
-        #         break
-        #     # frame_timer = frame.copy()
-        #     text_to = "place your hand in the box in and then press q"
-        #     frame_timer = cv2.flip(frame, 1)
-        #     cv2.putText(frame_timer, text_to, (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        #     cv2.rectangle(frame_timer, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        #     cv2.imshow('Be Ready!', frame_timer)
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         print(frame_timer)
-        #         break
-        # cv2.destroyWindow('Be Ready!')
-
         cv2.waitKey(1000)
-        # Capture a picture at the end of the countdown
+        
         while True:
             ret,captured_frame = vedio.read()
             image = cv2.cvtColor(captured_frame, cv2.COLOR_BGR2RGB)
@@ -71,7 +54,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 cv2.imwrite(directory+"/image"+'.jpg',roi)
-                img_gray = cv2.cvtColor(captured_frame, cv2.COLOR_BGR2GRAY)
+                img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 img_normalized = img_gray / 255
                 resized_img = cv2.resize(img_normalized, (256, 256))
                 resized_img = np.expand_dims(resized_img, axis=-1)
@@ -85,7 +68,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         print("Random Gesture:", random_sel)
         if((predicted_class=='rock' and random_sel=='scissor') or (predicted_class=='paper' and random_sel=='rock') or (predicted_class=='scissor' and random_sel=='paper')):
             print('you win')
-        elif((predicted_class=='rock' and random_sel=='rock') or (predicted_class=='paper' and random_sel=='paper') or (predicted_class=='scissor' and random_sel=='scissor')):
+        elif((predicted_class=='rock' and random_sel=='rock') or (predicted_class=='paper' and random_sel=='paper') or (predicted_class=='scissors' and random_sel=='scissors')):
             print('its a draw!')
         else:
             print('you lose')
