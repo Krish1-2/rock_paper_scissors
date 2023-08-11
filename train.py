@@ -49,9 +49,9 @@ with open(label_encoder_path, 'wb') as file:
 train_images, test_images, train_labels, test_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=42)
 
 datagen = ImageDataGenerator(
-    # brightness_range=[0.7, 1.3], 
     horizontal_flip=True,
-    vertical_flip=True,
+    rotation_range=20,
+   
 )
 
 # Generate augmented images and labels
@@ -70,7 +70,6 @@ model.add(Flatten())
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5)) 
 model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5)) 
 model.add(Dense(3, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 hist=model.fit(augmented_train_generator, epochs=20,validation_data=(test_images, test_labels))
